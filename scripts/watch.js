@@ -9,16 +9,25 @@ if (!fs.existsSync('build')) {
 }
 
 // JS のコンパイル
-browserify(['src/main.js'], {
+var b = browserify({
+  entries: ['./src/main.js'],
+  debug: true,
   cache: {},
   packageCache: {},
   plugin: [watchify]
-})
-.transform('babelify', {
-  presets: ['es2015', 'react']
-})
-.bundle()
-.pipe(fs.createWriteStream('build/bundle.js'));
+});
+
+function bundle() {
+  b
+  .transform('babelify', {
+    presets: ['es2015', 'react']
+  })
+  .bundle()
+  .pipe(fs.createWriteStream('build/bundle.js'));
+}
+
+b.on('update', bundle);
+bundle();
 
 // HTML のコピー
 fs.watch('src/index.html', function() {
